@@ -1,6 +1,12 @@
 node_modules/
+vendor/
 temporary screenshots/
 reference-*.png
 *.output
 .claude/
+.playwright-mcp/
+package.json
 package-lock.json
+serve.mjs
+screenshot.mjs
+CLAUDE.md
