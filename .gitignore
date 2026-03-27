@@ -1,0 +1,6 @@
+node_modules/
+temporary screenshots/
+reference-*.png
+*.output
+.claude/
+package-lock.json

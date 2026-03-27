@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rezervacija — Villa Pačetina</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            forest: { 50: '#f0f7f0', 100: '#d4ead4', 200: '#a8d5a8', 300: '#6fb86f', 400: '#3d8b3d', 500: '#1f5820', 600: '#1a4a1b', 700: '#143b15', 800: '#0f2d10', 900: '#0a1f0b' },
+            gold: { 50: '#fdf9ef', 100: '#f9f0d5', 200: '#f0dba6', 300: '#e5c373', 400: '#d4b06a', 500: '#C5A258', 600: '#a88840', 700: '#8a6e30', 800: '#6d5524', 900: '#503d1a' },
+            cream: { 50: '#FEFCF8', 100: '#FAF6EE', 200: '#f7f3ec', 300: '#f0e8d8', 400: '#e5d9c3', 500: '#d4c5a8' },
+            ink: '#1f1f1f',
+          },
+          fontFamily: {
+            display: ['"Cormorant Garamond"', 'serif'],
+            body: ['"Montserrat"', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Montserrat', sans-serif; color: #1f1f1f; overflow-x: hidden; background: #FAF6EE; }
+
+    .grain-overlay::after {
+      content: ''; position: absolute; inset: 0; opacity: 0.03;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 1;
+    }
+
+    .fade-up { opacity: 0; transform: translateY(30px); transition: opacity 0.8s cubic-bezier(0.16,1,0.3,1), transform 0.8s cubic-bezier(0.16,1,0.3,1); }
+    .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+    .nav-scrolled { background: rgba(255,255,255,0.97) !important; box-shadow: 0 2px 20px rgba(31,88,32,0.08), 0 1px 4px rgba(0,0,0,0.04) !important; backdrop-filter: blur(12px); }
+
+    .gold-line { width: 60px; height: 2px; background: linear-gradient(90deg, #C5A258, #e5c373); }
+
+    .btn-forest {
+      background: #1f5820; color: #fff; padding: 14px 32px; font-family: 'Montserrat', sans-serif;
+      font-weight: 600; font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase;
+      border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 10px;
+      transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s ease, background 0.3s ease;
+      box-shadow: 0 4px 16px rgba(31,88,32,0.2), 0 1px 3px rgba(31,88,32,0.1); text-decoration: none;
+    }
+    .btn-forest:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(31,88,32,0.28); background: #246b28; }
+    .btn-forest:focus-visible { outline: 3px solid #C5A258; outline-offset: 3px; }
+    .btn-forest:active { transform: translateY(0); }
+
+    /* Villa selector cards */
+    .villa-card {
+      position: relative; border: 2px solid #e5d9c3; border-radius: 16px; overflow: hidden;
+      cursor: pointer; transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
+      background: white;
+    }
+    .villa-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(31,88,32,0.1); }
+    .villa-card.selected { border-color: #1f5820; box-shadow: 0 0 0 3px rgba(31,88,32,0.15), 0 12px 32px rgba(31,88,32,0.12); }
+    .villa-card .check-badge {
+      position: absolute; top: 16px; right: 16px; width: 32px; height: 32px;
+      background: #1f5820; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      opacity: 0; transform: scale(0.5); transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1); z-index: 2;
+    }
+    .villa-card.selected .check-badge { opacity: 1; transform: scale(1); }
+
+    /* Date inputs */
+    .date-input {
+      width: 100%; padding: 14px 16px; border: 2px solid #e5d9c3; border-radius: 12px;
+      font-family: 'Montserrat', sans-serif; font-size: 0.9rem; color: #1f1f1f;
+      background: white; transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      -webkit-appearance: none;
+    }
+    .date-input:focus { outline: none; border-color: #1f5820; box-shadow: 0 0 0 3px rgba(31,88,32,0.1); }
+    .date-input::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.5; }
+
+    /* Guest counter */
+    .counter-btn {
+      width: 40px; height: 40px; border-radius: 50%; border: 2px solid #e5d9c3;
+      background: white; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all 0.2s ease; font-size: 1.2rem; color: #1f5820;
+    }
+    .counter-btn:hover { border-color: #1f5820; background: #f0f7f0; }
+    .counter-btn:active { transform: scale(0.95); }
+
+    /* Steps */
+    .step-indicator { display: flex; align-items: center; gap: 0; }
+    .step-dot {
+      width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-family: 'Montserrat', sans-serif; font-size: 0.75rem; font-weight: 700;
+      border: 2px solid #e5d9c3; color: #d4c5a8; background: white;
+      transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .step-dot.active { border-color: #1f5820; color: white; background: #1f5820; }
+    .step-dot.completed { border-color: #C5A258; color: white; background: #C5A258; }
+    .step-line { flex: 1; height: 2px; background: #e5d9c3; transition: background 0.4s ease; }
+    .step-line.active { background: linear-gradient(90deg, #C5A258, #1f5820); }
+
+    /* Form fields */
+    .form-input {
+      width: 100%; padding: 14px 16px; border: 2px solid #e5d9c3; border-radius: 12px;
+      font-family: 'Montserrat', sans-serif; font-size: 0.9rem; color: #1f1f1f;
+      background: white; transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    .form-input:focus { outline: none; border-color: #1f5820; box-shadow: 0 0 0 3px rgba(31,88,32,0.1); }
+
+    /* Summary card shimmer */
+    .summary-shimmer { position: relative; overflow: hidden; }
+    .summary-shimmer::before {
+      content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(197,162,88,0.04), transparent);
+      animation: shimmer 6s infinite; z-index: 0;
+    }
+    @keyframes shimmer { 0% { left: -100%; } 50%, 100% { left: 100%; } }
+
+    /* Payment card field */
+    .card-field {
+      background: linear-gradient(135deg, #0f2d10 0%, #1a4a1b 50%, #143b15 100%);
+      border-radius: 16px; padding: 28px 24px; color: white; position: relative; overflow: hidden;
+    }
+    .card-field::before {
+      content: ''; position: absolute; top: -50%; right: -30%; width: 200px; height: 200px;
+      background: radial-gradient(circle, rgba(197,162,88,0.15) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .card-field::after {
+      content: ''; position: absolute; bottom: -40%; left: -20%; width: 180px; height: 180px;
+      background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .card-input {
+      width: 100%; padding: 12px 0; border: none; border-bottom: 1px solid rgba(255,255,255,0.2);
+      background: transparent; font-family: 'Montserrat', sans-serif; font-size: 0.9rem;
+      color: white; letter-spacing: 0.1em; transition: border-color 0.3s ease;
+    }
+    .card-input:focus { outline: none; border-color: #C5A258; }
+    .card-input::placeholder { color: rgba(255,255,255,0.35); }
+
+    /* Step panels */
+    .step-panel { display: none; animation: fadeIn 0.5s cubic-bezier(0.16,1,0.3,1); }
+    .step-panel.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Confirmation overlay */
+    .confirmation-overlay {
+      position: fixed; inset: 0; background: rgba(10,31,11,0.85); backdrop-filter: blur(8px);
+      z-index: 100; display: none; align-items: center; justify-content: center;
+    }
+    .confirmation-overlay.show { display: flex; }
+    .confirmation-card {
+      background: white; border-radius: 24px; padding: 48px; max-width: 500px; width: 90%;
+      text-align: center; animation: popIn 0.5s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    @keyframes popIn { from { opacity: 0; transform: scale(0.9) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+    /* Night count badge */
+    .night-badge {
+      display: inline-flex; align-items: center; gap: 6px; background: #f0f7f0;
+      border: 1px solid #d4ead4; border-radius: 20px; padding: 6px 14px;
+      font-size: 0.8rem; font-weight: 600; color: #1f5820;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVIGATION -->
+  <header id="navbar" class="fixed top-0 left-0 right-0 z-50 transition-all duration-500 bg-white/95 backdrop-blur-md shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
+    <div class="max-w-[1280px] mx-auto px-5 md:px-10 py-4 flex items-center justify-between">
+      <a href="index.html" class="flex items-center gap-2 group">
+        <img src="https://villa-pacetina.com/wp-content/uploads/2022/09/villa_pacetina-2.png" alt="Villa Pačetina Logo" class="h-12 w-auto transition-transform duration-300 group-hover:scale-105">
+      </a>
+      <nav class="hidden lg:flex items-center gap-8">
+        <a href="index.html" class="font-body text-sm font-medium text-ink/70 hover:text-forest-500 transition-colors duration-300">Ville</a>
+        <a href="kontakt.html" class="font-body text-sm font-medium text-ink/70 hover:text-forest-500 transition-colors duration-300">Kontakt</a>
+        <a href="aktivnosti.html" class="font-body text-sm font-medium text-ink/70 hover:text-forest-500 transition-colors duration-300">Aktivnosti</a>
+        <a href="galerija.html" class="font-body text-sm font-medium text-ink/70 hover:text-forest-500 transition-colors duration-300">Galerija</a>
+      </nav>
+      <a href="#" class="btn-forest text-xs hidden lg:inline-flex" style="padding: 10px 24px; font-size: 0.72rem;" onclick="return false;">Rezervacija</a>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="relative pt-24 pb-0 overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-b from-forest-900 via-forest-800 to-cream-100" style="height: 420px;"></div>
+    <div class="absolute inset-0 grain-overlay" style="height: 420px;"></div>
+    <div class="absolute top-0 right-0 w-[400px] h-[400px] bg-[radial-gradient(circle,rgba(197,162,88,0.08)_0%,transparent_70%)]"></div>
+
+    <div class="relative z-10 max-w-[900px] mx-auto px-5 md:px-10 pt-12 pb-8 text-center">
+      <div class="gold-line mx-auto mb-5"></div>
+      <p class="font-body text-xs font-semibold tracking-[0.25em] uppercase text-gold-400 mb-3">Ville Pačetina</p>
+      <h1 class="font-display text-4xl md:text-5xl font-semibold text-white leading-tight mb-4">Rezervirajte Vaš odmor</h1>
+      <p class="font-body text-white/55 text-sm max-w-md mx-auto leading-relaxed">
+        Odaberite villu, datume boravka i osigurajte svoj termin u samo par koraka.
+      </p>
+    </div>
+  </section>
+
+  <!-- BOOKING FLOW -->
+  <section class="relative z-10 -mt-8 pb-24">
+    <div class="max-w-[900px] mx-auto px-5 md:px-10">
+
+      <!-- Steps Indicator -->
+      <div class="bg-white rounded-2xl shadow-[0_8px_40px_rgba(31,88,32,0.06),0_1px_3px_rgba(0,0,0,0.04)] p-6 mb-8">
+        <div class="step-indicator max-w-md mx-auto">
+          <div class="step-dot active" id="dot1">1</div>
+          <div class="step-line" id="line1"></div>
+          <div class="step-dot" id="dot2">2</div>
+          <div class="step-line" id="line2"></div>
+          <div class="step-dot" id="dot3">3</div>
+          <div class="step-line" id="line3"></div>
+          <div class="step-dot" id="dot4">4</div>
+        </div>
+        <div class="flex justify-between max-w-md mx-auto mt-3">
+          <span class="font-body text-xs text-forest-500 font-semibold" id="label1">Villa</span>
+          <span class="font-body text-xs text-ink/30" id="label2">Datumi</span>
+          <span class="font-body text-xs text-ink/30" id="label3">Podaci</span>
+          <span class="font-body text-xs text-ink/30" id="label4">Plaćanje</span>
+        </div>
+      </div>
+
+      <!-- ====== STEP 1: CHOOSE VILLA ====== -->
+      <div class="step-panel active" id="step1">
+        <div class="text-center mb-8 fade-up">
+          <h2 class="font-display text-3xl font-semibold text-ink mb-2">Odaberite villu</h2>
+          <p class="font-body text-ink/50 text-sm">Izaberite villu koja vam odgovara za vaš boravak</p>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-6 mb-10 fade-up" style="animation-delay:0.1s;">
+          <!-- Villa Lara Card -->
+          <div class="villa-card" id="cardLara" onclick="selectVilla('lara')">
+            <div class="check-badge">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div class="relative h-48 overflow-hidden">
+              <img src="https://villa-pacetina.com/wp-content/uploads/2015/07/VillaPacetina162_Jurinec-photography_19052022222222222222-copy-1-1.jpg" alt="Villa Lara" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105">
+              <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+              <span class="absolute bottom-4 left-4 font-display text-2xl font-semibold text-white">Villa Lara</span>
+            </div>
+            <div class="p-5">
+              <div class="flex items-center gap-4 mb-3">
+                <span class="inline-flex items-center gap-1.5 text-xs font-medium text-ink/50">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+                  Do 8 gostiju
+                </span>
+                <span class="inline-flex items-center gap-1.5 text-xs font-medium text-ink/50">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+                  120m²
+                </span>
+                <span class="inline-flex items-center gap-1.5 text-xs font-medium text-ink/50">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 8h20"/></svg>
+                  3 sobe
+                </span>
+              </div>
+              <p class="font-body text-xs text-ink/45 leading-relaxed">Toplina drva, kamin, mini sauna, hidromasažna kada i natkrivena terasa s bazenom.</p>
+            </div>
+          </div>
+
+          <!-- Villa Nina Card -->
+          <div class="villa-card" id="cardNina" onclick="selectVilla('nina')">
+            <div class="check-badge">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div class="relative h-48 overflow-hidden">
+              <img src="https://villa-pacetina.com/wp-content/uploads/2015/07/VillaPacetina-villa2.jpg" alt="Villa Nina" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105">
+              <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+              <span class="absolute bottom-4 left-4 font-display text-2xl font-semibold text-white">Villa Nina</span>
+            </div>
+            <div class="p-5">
+              <div class="flex items-center gap-4 mb-3">
+                <span class="inline-flex items-center gap-1.5 text-xs font-medium text-ink/50">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+                  Do 8 gostiju
+                </span>
+                <span class="inline-flex items-center gap-1.5 text-xs font-medium text-ink/50">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+                  150m²
+                </span>
+                <span class="inline-flex items-center gap-1.5 text-xs font-medium text-ink/50">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 8h20"/></svg>
+                  4 sobe
+                </span>
+              </div>
+              <p class="font-body text-xs text-ink/45 leading-relaxed">Moderni dizajn, jacuzzi, sauna, SPA zona i panoramski pogled na zagorske brege.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center">
+          <button class="btn-forest" onclick="goToStep(2)" id="btn-step1">
+            Dalje — odaberite datume
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- ====== STEP 2: DATES & GUESTS ====== -->
+      <div class="step-panel" id="step2">
+        <div class="text-center mb-8">
+          <h2 class="font-display text-3xl font-semibold text-ink mb-2">Datumi i gosti</h2>
+          <p class="font-body text-ink/50 text-sm">Odaberite datume dolaska i odlaska</p>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-[0_8px_40px_rgba(31,88,32,0.06)] p-8 mb-8">
+          <div class="grid md:grid-cols-2 gap-6 mb-8">
+            <div>
+              <label class="font-body text-xs font-semibold text-ink/60 tracking-wide uppercase block mb-2">Datum dolaska</label>
+              <input type="date" class="date-input" id="checkin" onchange="calculateNights()">
+            </div>
+            <div>
+              <label class="font-body text-xs font-semibold text-ink/60 tracking-wide uppercase block mb-2">Datum odlaska</label>
+              <input type="date" class="date-input" id="checkout" onchange="calculateNights()">
+            </div>
+          </div>
+
+          <!-- Night count display -->
+          <div class="text-center mb-8" id="nightsDisplay" style="display:none;">
+            <div class="night-badge">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1f5820" stroke-width="1.5"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+              <span id="nightsCount">0</span> noćenja
+            </div>
+          </div>
+
+          <!-- Guest Counter -->
+          <div class="flex items-center justify-between max-w-sm mx-auto bg-cream-100 rounded-xl p-5">
+            <div>
+              <p class="font-body text-sm font-semibold text-ink">Broj gostiju</p>
+              <p class="font-body text-xs text-ink/40">Maksimalno 8 osoba</p>
+            </div>
+            <div class="flex items-center gap-4">
+              <button class="counter-btn" onclick="changeGuests(-1)">−</button>
+              <span class="font-display text-2xl font-semibold text-forest-500 w-8 text-center" id="guestCount">2</span>
+              <button class="counter-btn" onclick="changeGuests(1)">+</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Seasonal notice -->
+        <div class="bg-forest-50 border border-forest-100 rounded-xl p-5 mb-8 flex items-start gap-3">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1f5820" stroke-width="1.5" class="flex-shrink-0 mt-0.5"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+          <div>
+            <p class="font-body text-sm font-semibold text-forest-600 mb-1">Proljetna ponuda</p>
+            <p class="font-body text-xs text-forest-500/70 leading-relaxed">23.3. – 12.4. ostvarite <strong>-20% na noćenje</strong>. Do 1.5. vrijedi akcija <strong>3+1 noć GRATIS</strong>. Svi gosti dobivaju besplatan ulaz u Aquae Vivae.</p>
+          </div>
+        </div>
+
+        <div class="flex justify-between">
+          <button class="font-body text-sm font-semibold text-ink/40 hover:text-forest-500 transition-colors flex items-center gap-2" onclick="goToStep(1)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            Natrag
+          </button>
+          <button class="btn-forest" onclick="goToStep(3)">
+            Dalje — vaši podaci
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- ====== STEP 3: PERSONAL INFO ====== -->
+      <div class="step-panel" id="step3">
+        <div class="text-center mb-8">
+          <h2 class="font-display text-3xl font-semibold text-ink mb-2">Vaši podaci</h2>
+          <p class="font-body text-ink/50 text-sm">Potrebni za potvrdu rezervacije</p>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-[0_8px_40px_rgba(31,88,32,0.06)] p-8 mb-8">
+          <div class="grid md:grid-cols-2 gap-5 mb-5">
+            <div>
+              <label class="font-body text-xs font-semibold text-ink/60 tracking-wide uppercase block mb-2">Ime *</label>
+              <input type="text" class="form-input" placeholder="Vaše ime" id="fname">
+            </div>
+            <div>
+              <label class="font-body text-xs font-semibold text-ink/60 tracking-wide uppercase block mb-2">Prezime *</label>
+              <input type="text" class="form-input" placeholder="Vaše prezime" id="lname">
+            </div>
+          </div>
+          <div class="grid md:grid-cols-2 gap-5 mb-5">
+            <div>
+              <label class="font-body text-xs font-semibold text-ink/60 tracking-wide uppercase block mb-2">Email *</label>
+              <input type="email" class="form-input" placeholder="vas@email.com" id="email">
+            </div>
+            <div>
+              <label class="font-body text-xs font-semibold text-ink/60 tracking-wide uppercase block mb-2">Telefon *</label>
+              <input type="tel" class="form-input" placeholder="+385 99 123 4567" id="phone">
+            </div>
+          </div>
+          <div>
+            <label class="font-body text-xs font-semibold text-ink/60 tracking-wide uppercase block mb-2">Napomena</label>
+            <textarea class="form-input" rows="3" placeholder="Posebne želje, alergije, vrijeme dolaska..." id="note"></textarea>
+          </div>
+        </div>
+
+        <div class="flex justify-between">
+          <button class="font-body text-sm font-semibold text-ink/40 hover:text-forest-500 transition-colors flex items-center gap-2" onclick="goToStep(2)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            Natrag
+          </button>
+          <button class="btn-forest" onclick="goToStep(4)">
+            Dalje — plaćanje
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- ====== STEP 4: PAYMENT ====== -->
+      <div class="step-panel" id="step4">
+        <div class="text-center mb-8">
+          <h2 class="font-display text-3xl font-semibold text-ink mb-2">Plaćanje</h2>
+          <p class="font-body text-ink/50 text-sm">Sigurno plaćanje — vaši podaci su zaštićeni</p>
+        </div>
+
+        <div class="grid md:grid-cols-[1fr,340px] gap-8">
+          <!-- Payment form -->
+          <div>
+            <!-- Summary card -->
+            <div class="summary-shimmer bg-white rounded-2xl shadow-[0_8px_40px_rgba(31,88,32,0.06)] p-6 mb-6 relative">
+              <div class="relative z-10">
+                <p class="font-body text-xs font-semibold tracking-[0.15em] uppercase text-gold-600 mb-3">Pregled rezervacije</p>
+                <div class="flex items-center gap-4 mb-4">
+                  <div class="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0" id="summaryImg">
+                    <img src="https://villa-pacetina.com/wp-content/uploads/2015/07/VillaPacetina162_Jurinec-photography_19052022222222222222-copy-1-1.jpg" alt="" class="w-full h-full object-cover">
+                  </div>
+                  <div>
+                    <p class="font-display text-xl font-semibold text-ink" id="summaryVilla">Villa Lara</p>
+                    <p class="font-body text-xs text-ink/40" id="summaryDates">—</p>
+                  </div>
+                </div>
+                <div class="border-t border-cream-300 pt-4 space-y-2">
+                  <div class="flex justify-between">
+                    <span class="font-body text-xs text-ink/50">Noćenja</span>
+                    <span class="font-body text-xs font-semibold text-ink" id="summaryNights">—</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="font-body text-xs text-ink/50">Gosti</span>
+                    <span class="font-body text-xs font-semibold text-ink" id="summaryGuests">—</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="font-body text-xs text-ink/50">Cijena po noćenju</span>
+                    <span class="font-body text-xs font-semibold text-ink">od €150</span>
+                  </div>
+                  <div class="border-t border-cream-300 pt-3 mt-3 flex justify-between">
+                    <span class="font-body text-sm font-bold text-ink">Ukupno (procjena)</span>
+                    <span class="font-display text-xl font-bold text-forest-500" id="summaryTotal">—</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Credit Card -->
+            <div class="card-field mb-6">
+              <div class="relative z-10">
+                <div class="flex justify-between items-center mb-6">
+                  <p class="font-body text-xs font-semibold tracking-widest uppercase text-white/50">Kartično plaćanje</p>
+                  <div class="flex gap-2">
+                    <div class="w-10 h-7 bg-white/10 rounded flex items-center justify-center">
+                      <svg width="24" height="16" viewBox="0 0 24 16" fill="none"><circle cx="8" cy="8" r="7" fill="#eb001b" opacity="0.8"/><circle cx="16" cy="8" r="7" fill="#f79e1b" opacity="0.8"/><path d="M12 2.5a7 7 0 000 11" fill="#ff5f00" opacity="0.9"/></svg>
+                    </div>
+                    <div class="w-10 h-7 bg-white/10 rounded flex items-center justify-center">
+                      <svg width="20" height="14" viewBox="0 0 20 14" fill="none"><rect x="0.5" y="0.5" width="19" height="13" rx="2" stroke="white" stroke-opacity="0.3"/><text x="10" y="9" text-anchor="middle" fill="white" fill-opacity="0.6" font-size="6" font-family="sans-serif" font-weight="bold">VISA</text></svg>
+                    </div>
+                  </div>
+                </div>
+                <div class="mb-5">
+                  <label class="font-body text-[10px] font-semibold tracking-widest uppercase text-white/40 block mb-1">Broj kartice</label>
+                  <input type="text" class="card-input" placeholder="0000  0000  0000  0000" maxlength="19" oninput="formatCardNumber(this)">
+                </div>
+                <div class="grid grid-cols-2 gap-6">
+                  <div>
+                    <label class="font-body text-[10px] font-semibold tracking-widest uppercase text-white/40 block mb-1">Istječe</label>
+                    <input type="text" class="card-input" placeholder="MM / GG" maxlength="7">
+                  </div>
+                  <div>
+                    <label class="font-body text-[10px] font-semibold tracking-widest uppercase text-white/40 block mb-1">CVV</label>
+                    <input type="text" class="card-input" placeholder="•••" maxlength="4">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label class="font-body text-xs font-semibold text-ink/60 tracking-wide uppercase block mb-2">Ime na kartici</label>
+              <input type="text" class="form-input" placeholder="Kako piše na kartici">
+            </div>
+          </div>
+
+          <!-- Sidebar trust signals -->
+          <div class="space-y-4">
+            <div class="bg-white rounded-xl p-5 shadow-[0_4px_16px_rgba(0,0,0,0.03)]">
+              <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-full bg-forest-50 flex items-center justify-center flex-shrink-0">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1f5820" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                </div>
+                <div>
+                  <p class="font-body text-sm font-semibold text-ink">Sigurno plaćanje</p>
+                  <p class="font-body text-xs text-ink/40">256-bit SSL enkripcija</p>
+                </div>
+              </div>
+            </div>
+            <div class="bg-white rounded-xl p-5 shadow-[0_4px_16px_rgba(0,0,0,0.03)]">
+              <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-full bg-gold-50 flex items-center justify-center flex-shrink-0">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C5A258" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </div>
+                <div>
+                  <p class="font-body text-sm font-semibold text-ink">Besplatno otkazivanje</p>
+                  <p class="font-body text-xs text-ink/40">Do 48h prije dolaska</p>
+                </div>
+              </div>
+            </div>
+            <div class="bg-white rounded-xl p-5 shadow-[0_4px_16px_rgba(0,0,0,0.03)]">
+              <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-full bg-forest-50 flex items-center justify-center flex-shrink-0">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1f5820" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+                </div>
+                <div>
+                  <p class="font-body text-sm font-semibold text-ink">Podrška 24/7</p>
+                  <p class="font-body text-xs text-ink/40">099 444 0999</p>
+                </div>
+              </div>
+            </div>
+            <div class="bg-white rounded-xl p-5 shadow-[0_4px_16px_rgba(0,0,0,0.03)]">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-gold-50 flex items-center justify-center flex-shrink-0">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C5A258" stroke-width="1.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                </div>
+                <div>
+                  <p class="font-body text-sm font-semibold text-ink">Booking.com 9.8/10</p>
+                  <p class="font-body text-xs text-ink/40">Ocjena gostiju</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-between mt-8">
+          <button class="font-body text-sm font-semibold text-ink/40 hover:text-forest-500 transition-colors flex items-center gap-2" onclick="goToStep(3)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            Natrag
+          </button>
+          <button class="btn-forest" style="background: linear-gradient(135deg, #1f5820, #2d7a30); padding: 16px 40px;" onclick="confirmBooking()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            Potvrdi i plati
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- CONFIRMATION OVERLAY -->
+  <div class="confirmation-overlay" id="confirmOverlay">
+    <div class="confirmation-card">
+      <div class="w-20 h-20 rounded-full bg-forest-50 flex items-center justify-center mx-auto mb-6">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#1f5820" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <h2 class="font-display text-3xl font-semibold text-ink mb-3">Rezervacija potvrđena!</h2>
+      <p class="font-body text-ink/50 text-sm leading-relaxed mb-6">
+        Hvala vam na rezervaciji. Potvrdu ćete dobiti na email. Veselimo se vašem dolasku!
+      </p>
+      <div class="bg-cream-100 rounded-xl p-4 mb-6 text-left">
+        <div class="flex justify-between mb-2">
+          <span class="font-body text-xs text-ink/40">Villa</span>
+          <span class="font-body text-xs font-semibold text-ink" id="confVilla">—</span>
+        </div>
+        <div class="flex justify-between mb-2">
+          <span class="font-body text-xs text-ink/40">Datumi</span>
+          <span class="font-body text-xs font-semibold text-ink" id="confDates">—</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="font-body text-xs text-ink/40">Broj potvrde</span>
+          <span class="font-body text-xs font-semibold text-forest-500" id="confNumber">—</span>
+        </div>
+      </div>
+      <a href="index.html" class="btn-forest inline-flex">
+        Povratak na naslovnicu
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  </div>
+
+  <script>
+    // === State ===
+    let selectedVilla = null;
+    let guests = 2;
+    let nights = 0;
+
+    // === Villa Selection ===
+    function selectVilla(villa) {
+      selectedVilla = villa;
+      document.getElementById('cardLara').classList.toggle('selected', villa === 'lara');
+      document.getElementById('cardNina').classList.toggle('selected', villa === 'nina');
+    }
+
+    // === Guest Counter ===
+    function changeGuests(delta) {
+      guests = Math.max(1, Math.min(8, guests + delta));
+      document.getElementById('guestCount').textContent = guests;
+    }
+
+    // === Calculate Nights ===
+    function calculateNights() {
+      const checkin = document.getElementById('checkin').value;
+      const checkout = document.getElementById('checkout').value;
+      if (checkin && checkout) {
+        const d1 = new Date(checkin);
+        const d2 = new Date(checkout);
+        nights = Math.max(0, Math.round((d2 - d1) / (1000 * 60 * 60 * 24)));
+        document.getElementById('nightsCount').textContent = nights;
+        document.getElementById('nightsDisplay').style.display = nights > 0 ? 'block' : 'none';
+      }
+    }
+
+    // === Step Navigation ===
+    function goToStep(step) {
+      // Hide all panels
+      document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('step' + step).classList.add('active');
+
+      // Update dots
+      for (let i = 1; i <= 4; i++) {
+        const dot = document.getElementById('dot' + i);
+        const label = document.getElementById('label' + i);
+        dot.classList.remove('active', 'completed');
+        label.classList.remove('text-forest-500', 'text-gold-500');
+        label.classList.add('text-ink/30');
+
+        if (i < step) {
+          dot.classList.add('completed');
+          dot.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>';
+          label.classList.remove('text-ink/30');
+          label.classList.add('text-gold-500');
+        } else if (i === step) {
+          dot.classList.add('active');
+          dot.textContent = i;
+          label.classList.remove('text-ink/30');
+          label.classList.add('text-forest-500');
+          label.style.fontWeight = '600';
+        } else {
+          dot.textContent = i;
+        }
+      }
+
+      // Update lines
+      for (let i = 1; i <= 3; i++) {
+        document.getElementById('line' + i).classList.toggle('active', i < step);
+      }
+
+      // Update summary on step 4
+      if (step === 4) updateSummary();
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // === Update Summary ===
+    function updateSummary() {
+      const villaName = selectedVilla === 'nina' ? 'Villa Nina' : 'Villa Lara';
+      const villaImg = selectedVilla === 'nina'
+        ? 'https://villa-pacetina.com/wp-content/uploads/2015/07/VillaPacetina-villa2.jpg'
+        : 'https://villa-pacetina.com/wp-content/uploads/2015/07/VillaPacetina162_Jurinec-photography_19052022222222222222-copy-1-1.jpg';
+
+      document.getElementById('summaryVilla').textContent = villaName;
+      document.querySelector('#summaryImg img').src = villaImg;
+
+      const checkin = document.getElementById('checkin').value;
+      const checkout = document.getElementById('checkout').value;
+      if (checkin && checkout) {
+        const opts = { day: 'numeric', month: 'short', year: 'numeric' };
+        const d1 = new Date(checkin).toLocaleDateString('hr-HR', opts);
+        const d2 = new Date(checkout).toLocaleDateString('hr-HR', opts);
+        document.getElementById('summaryDates').textContent = d1 + ' → ' + d2;
+      }
+
+      document.getElementById('summaryNights').textContent = nights + ' noćenja';
+      document.getElementById('summaryGuests').textContent = guests + ' osoba';
+
+      const total = nights * 150;
+      document.getElementById('summaryTotal').textContent = '€' + total;
+    }
+
+    // === Format Card Number ===
+    function formatCardNumber(input) {
+      let val = input.value.replace(/\D/g, '');
+      val = val.replace(/(\d{4})(?=\d)/g, '$1  ');
+      input.value = val;
+    }
+
+    // === Confirm Booking ===
+    function confirmBooking() {
+      const villaName = selectedVilla === 'nina' ? 'Villa Nina' : 'Villa Lara';
+      const checkin = document.getElementById('checkin').value;
+      const checkout = document.getElementById('checkout').value;
+      const confNum = 'VP-' + Math.random().toString(36).substr(2, 8).toUpperCase();
+
+      document.getElementById('confVilla').textContent = villaName;
+      if (checkin && checkout) {
+        const opts = { day: 'numeric', month: 'short' };
+        const d1 = new Date(checkin).toLocaleDateString('hr-HR', opts);
+        const d2 = new Date(checkout).toLocaleDateString('hr-HR', opts);
+        document.getElementById('confDates').textContent = d1 + ' → ' + d2;
+      }
+      document.getElementById('confNumber').textContent = confNum;
+
+      document.getElementById('confirmOverlay').classList.add('show');
+    }
+
+    // === Set min dates ===
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('checkin').min = today;
+    document.getElementById('checkout').min = today;
+
+    // === Fade-up observer ===
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.15 });
+    document.querySelectorAll('.fade-up').forEach(el => obs.observe(el));
+    setTimeout(() => {
+      document.querySelectorAll('.fade-up').forEach(el => {
+        if (el.getBoundingClientRect().top < window.innerHeight) el.classList.add('visible');
+      });
+    }, 100);
+  </script>
+</body>
+</html>
