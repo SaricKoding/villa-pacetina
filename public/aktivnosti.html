@@ -147,6 +147,15 @@
     .mobile-menu {
       transform: translateX(100%);
       transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: #ffffff;
+      z-index: 40;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2rem;
     }
     .mobile-menu.open {
       transform: translateX(0);
@@ -227,15 +236,15 @@
     </div>
 
     <!-- Mobile Menu -->
-    <div id="mobileMenu" class="mobile-menu fixed inset-0 bg-cream-100/98 backdrop-blur-md z-40 flex flex-col items-center justify-center gap-8 lg:hidden">
-      <a href="index.html#ville" class="font-display text-3xl text-forest-500 hover:text-gold-500 transition-colors" onclick="closeMobile()">Ville</a>
-      <a href="index.html#cjenik" class="font-display text-3xl text-forest-500 hover:text-gold-500 transition-colors" onclick="closeMobile()">Cjenik</a>
-      <a href="index.html#paketi" class="font-display text-3xl text-forest-500 hover:text-gold-500 transition-colors" onclick="closeMobile()">Paketi</a>
-      <a href="kontakt.html" class="font-display text-3xl text-forest-500 hover:text-gold-500 transition-colors" onclick="closeMobile()">Kontakt</a>
-      <a href="aktivnosti.html" class="font-display text-3xl text-gold-500 transition-colors" onclick="closeMobile()">Aktivnosti</a>
-      <a href="galerija.html" class="font-display text-3xl text-forest-500 hover:text-gold-500 transition-colors" onclick="closeMobile()">Galerija</a>
-      <a href="#spazona" class="font-display text-3xl text-forest-500 hover:text-gold-500 transition-colors" onclick="closeMobile()">SPA zona</a>
-      <a href="index.html#ville" class="btn-forest mt-4" onclick="closeMobile()">Rezervirajte odmor</a>
+    <div id="mobileMenu" class="mobile-menu lg:hidden">
+      <a href="index.html#ville" class="font-display text-3xl text-forest-700 hover:text-gold-500 transition-colors" onclick="closeMobile()">Ville</a>
+      <a href="index.html#cjenik" class="font-display text-3xl text-forest-700 hover:text-gold-500 transition-colors" onclick="closeMobile()">Cjenik</a>
+      <a href="index.html#paketi" class="font-display text-3xl text-forest-700 hover:text-gold-500 transition-colors" onclick="closeMobile()">Paketi</a>
+      <a href="kontakt.html" class="font-display text-3xl text-forest-700 hover:text-gold-500 transition-colors" onclick="closeMobile()">Kontakt</a>
+      <a href="aktivnosti.html" class="font-display text-3xl text-gold-600 transition-colors" onclick="closeMobile()">Aktivnosti</a>
+      <a href="galerija.html" class="font-display text-3xl text-forest-700 hover:text-gold-500 transition-colors" onclick="closeMobile()">Galerija</a>
+      <a href="index.html#spa" class="font-display text-3xl text-forest-700 hover:text-gold-500 transition-colors" onclick="closeMobile()">SPA zona</a>
+      <a href="rezervacija.html" class="btn-forest mt-4" onclick="closeMobile()">Rezervirajte odmor</a>
     </div>
   </header>
 

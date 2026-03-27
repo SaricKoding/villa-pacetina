@@ -44,6 +44,23 @@
 
     .gold-line { width: 60px; height: 2px; background: linear-gradient(90deg, #C5A258, #e5c373); }
 
+    .mobile-menu {
+      transform: translateX(100%);
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: #ffffff;
+      z-index: 40;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2rem;
+    }
+    .mobile-menu.open {
+      transform: translateX(0);
+    }
+
     .btn-forest {
       background: #1f5820; color: #fff; padding: 14px 32px; font-family: 'Montserrat', sans-serif;
       font-weight: 600; font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase;
@@ -182,6 +199,22 @@
         <a href="galerija.html" class="font-body text-sm font-medium text-ink/70 hover:text-forest-500 transition-colors duration-300">Galerija</a>
       </nav>
       <a href="#" class="btn-forest text-xs hidden lg:inline-flex" style="padding: 10px 24px; font-size: 0.72rem;" onclick="return false;">Rezervacija</a>
+
+      <!-- Mobile hamburger -->
+      <button id="menuToggle" class="lg:hidden flex flex-col gap-1.5 p-2 z-50" aria-label="Otvori izbornik">
+        <span class="block w-6 h-0.5 bg-forest-500 transition-transform duration-300 origin-center" id="bar1"></span>
+        <span class="block w-6 h-0.5 bg-forest-500 transition-opacity duration-300" id="bar2"></span>
+        <span class="block w-6 h-0.5 bg-forest-500 transition-transform duration-300 origin-center" id="bar3"></span>
+      </button>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="mobile-menu lg:hidden">
+      <a href="index.html" class="font-display text-3xl text-forest-700 hover:text-gold-500 transition-colors" onclick="closeMobile()">Naslovnica</a>
+      <a href="kontakt.html" class="font-display text-3xl text-forest-700 hover:text-gold-500 transition-colors" onclick="closeMobile()">Kontakt</a>
+      <a href="aktivnosti.html" class="font-display text-3xl text-forest-700 hover:text-gold-500 transition-colors" onclick="closeMobile()">Aktivnosti</a>
+      <a href="galerija.html" class="font-display text-3xl text-forest-700 hover:text-gold-500 transition-colors" onclick="closeMobile()">Galerija</a>
+      <a href="rezervacija.html" class="font-display text-3xl text-gold-600 transition-colors" onclick="closeMobile()">Rezervacija</a>
     </div>
   </header>
 
@@ -584,6 +617,30 @@
   </div>
 
   <script>
+    // === Mobile menu toggle ===
+    const menuToggle = document.getElementById('menuToggle');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const bar1 = document.getElementById('bar1');
+    const bar2 = document.getElementById('bar2');
+    const bar3 = document.getElementById('bar3');
+    let menuOpen = false;
+
+    menuToggle.addEventListener('click', () => {
+      menuOpen = !menuOpen;
+      mobileMenu.classList.toggle('open', menuOpen);
+      bar1.style.transform = menuOpen ? 'rotate(45deg) translate(4px, 4px)' : '';
+      bar2.style.opacity = menuOpen ? '0' : '1';
+      bar3.style.transform = menuOpen ? 'rotate(-45deg) translate(4px, -4px)' : '';
+    });
+
+    function closeMobile() {
+      menuOpen = false;
+      mobileMenu.classList.remove('open');
+      bar1.style.transform = '';
+      bar2.style.opacity = '1';
+      bar3.style.transform = '';
+    }
+
     // === State ===
     let selectedVilla = null;
     let guests = 2;

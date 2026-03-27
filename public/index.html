@@ -231,6 +231,18 @@
     .mobile-menu {
       transform: translateX(100%);
       transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #ffffff;
+      z-index: 40;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2rem;
     }
     .mobile-menu.open {
       transform: translateX(0);
@@ -295,15 +307,15 @@
     </div>
 
     <!-- Mobile Menu -->
-    <div id="mobileMenu" class="mobile-menu fixed inset-0 bg-cream-100/98 backdrop-blur-md z-40 flex flex-col items-center justify-center gap-8 lg:hidden">
-      <a href="#ville" class="font-display text-3xl text-forest-500 hover:text-gold-500 transition-colors" onclick="closeMobile()">Ville</a>
-      <a href="#cjenik" class="font-display text-3xl text-forest-500 hover:text-gold-500 transition-colors" onclick="closeMobile()">Cjenik</a>
-      <a href="#paketi" class="font-display text-3xl text-forest-500 hover:text-gold-500 transition-colors" onclick="closeMobile()">Paketi</a>
-      <a href="#kontakt" class="font-display text-3xl text-forest-500 hover:text-gold-500 transition-colors" onclick="closeMobile()">Kontakt</a>
-      <a href="#aktivnosti" class="font-display text-3xl text-forest-500 hover:text-gold-500 transition-colors" onclick="closeMobile()">Aktivnosti</a>
-      <a href="#galerija" class="font-display text-3xl text-forest-500 hover:text-gold-500 transition-colors" onclick="closeMobile()">Galerija</a>
-      <a href="#spa" class="font-display text-3xl text-forest-500 hover:text-gold-500 transition-colors" onclick="closeMobile()">SPA zona</a>
-      <a href="#ville" class="btn-forest mt-4" onclick="closeMobile()">Rezervirajte odmor</a>
+    <div id="mobileMenu" class="mobile-menu lg:hidden">
+      <a href="#ville" class="font-display text-3xl text-forest-700 hover:text-gold-500 transition-colors" onclick="closeMobile()">Ville</a>
+      <a href="#cjenik" class="font-display text-3xl text-forest-700 hover:text-gold-500 transition-colors" onclick="closeMobile()">Cjenik</a>
+      <a href="#paketi" class="font-display text-3xl text-forest-700 hover:text-gold-500 transition-colors" onclick="closeMobile()">Paketi</a>
+      <a href="kontakt.html" class="font-display text-3xl text-forest-700 hover:text-gold-500 transition-colors" onclick="closeMobile()">Kontakt</a>
+      <a href="aktivnosti.html" class="font-display text-3xl text-forest-700 hover:text-gold-500 transition-colors" onclick="closeMobile()">Aktivnosti</a>
+      <a href="galerija.html" class="font-display text-3xl text-forest-700 hover:text-gold-500 transition-colors" onclick="closeMobile()">Galerija</a>
+      <a href="#spa" class="font-display text-3xl text-forest-700 hover:text-gold-500 transition-colors" onclick="closeMobile()">SPA zona</a>
+      <a href="rezervacija.html" class="btn-forest mt-4" onclick="closeMobile()">Rezervirajte odmor</a>
     </div>
   </header>
 
@@ -437,7 +449,7 @@
         <div class="fade-up">
           <figure class="relative rounded-2xl overflow-hidden shadow-[0_16px_48px_rgba(31,88,32,0.08),0_4px_12px_rgba(0,0,0,0.04)]">
             <div class="gallery-img aspect-[16/11]">
-              <img src="https://villa-pacetina.com/wp-content/uploads/2026/02/villa-pacetina-smjestaj-hrvatsko-zagorje-1.jpg" alt="Ville Pačetina" class="w-full h-full object-cover">
+              <img src="https://villa-pacetina.com/wp-content/uploads/2022/09/VillaPacetina.jpg" alt="Ville Pačetina" class="w-full h-full object-cover">
             </div>
             <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
             <figcaption class="absolute bottom-0 left-0 right-0 p-6">
@@ -576,8 +588,13 @@
           </div>
         </div>
         <div class="flex justify-center">
-          <div class="bg-white rounded-2xl p-6 shadow-[0_8px_32px_rgba(0,0,0,0.06)] text-center">
-            <img src="https://villa-pacetina.com/wp-content/uploads/2026/02/Digital-Award_RA-2026.png" alt="Traveller Review Awards 2026" class="w-48 h-auto mx-auto">
+          <div class="bg-white rounded-2xl p-8 shadow-[0_8px_32px_rgba(0,0,0,0.06)] text-center max-w-[220px]">
+            <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-forest-50 flex items-center justify-center">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#1f5820" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            </div>
+            <p class="font-display text-lg font-bold text-forest-600 mb-1">Traveller Review</p>
+            <p class="font-display text-lg font-bold text-forest-600 mb-2">Awards 2026</p>
+            <p class="font-body text-xs text-ink/50">Booking.com</p>
           </div>
         </div>
       </div>
